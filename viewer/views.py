@@ -7,27 +7,18 @@ import smtplib # biblioteka susikalbėjimui su pašto serveriu
 from email.message import EmailMessage
 
 
-# Create your views here.
-
-# def hello(request):
-#   #s1 = request.GET.get('s1', '')
-#   return render(
-#     request, template_name='emailform.html',
-#     context={}
-#   )
-
 
 class EmailViews(Form):
   email_from = CharField(max_length=128)
   email_to = CharField(max_length=128)
   email_subject = CharField(max_length=128)
-  email_text = CharField(max_length=1024)
-  sending_email = CharField(max_length=128)
-  sending_pasword = CharField(max_length=128, widget=PasswordInput)
+  email_text = CharField(max_length=1024, widget=EmailMessage)
+  # sending_email = CharField(max_length=128)
+  # sending_pasword = CharField(max_length=128, widget=PasswordInput)
 
 
 
-  def send_email(self, email_from, email_to, email_subject, email_text, sending_email, sending_pasword ):
+  def send_email(self, email_from, email_to, email_subject, email_text , sending_email, sending_pasword):
     email = EmailMessage()
     email['from'] = email_from
     email['to'] = email_to
@@ -38,7 +29,7 @@ class EmailViews(Form):
     with smtplib.SMTP(host='smtp.gmail.com', port=587) as smtp:
         smtp.ehlo() # žiūrėkite, kaip į pasisveikinimą su serveriu
         smtp.starttls() # inicijuojame šifruotą kanalą
-        smtp.login(sending_email, sending_pasword) # nurodome prisijungimo duomenis
+        smtp.login('krekeris@gmail.com', MKrambambuolis1) # nurodome prisijungimo duomenis
         smtp.send_message(email) # išsiunčiame žinutę
 
   
