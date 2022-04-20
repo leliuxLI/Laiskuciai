@@ -1,3 +1,4 @@
+#from curses.textpad import Textbox
 import re
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -7,14 +8,13 @@ import smtplib # biblioteka susikalbėjimui su pašto serveriu
 from email.message import EmailMessage
 
 
-
 class EmailViews(Form):
   email_from = CharField(max_length=128)
-  email_to = CharField(max_length=128)
+  email_to = CharField(max_length=128, widget=EmailInput)
   email_subject = CharField(max_length=128)
-  email_text = CharField(max_length=1024, widget=EmailMessage)
-  # sending_email = CharField(max_length=128)
-  # sending_pasword = CharField(max_length=128, widget=PasswordInput)
+  email_text = CharField(max_length=10000)
+  sending_email = CharField(max_length=128, widget=EmailInput)
+  sending_pasword = CharField(max_length=128, widget=PasswordInput)
 
 
 
@@ -23,13 +23,12 @@ class EmailViews(Form):
     email['from'] = email_from
     email['to'] = email_to
     email['subject'] = email_subject
-
     email.set_content(email_text)
 
     with smtplib.SMTP(host='smtp.gmail.com', port=587) as smtp:
         smtp.ehlo() # žiūrėkite, kaip į pasisveikinimą su serveriu
         smtp.starttls() # inicijuojame šifruotą kanalą
-        smtp.login('krekeris@gmail.com', MKrambambuolis1) # nurodome prisijungimo duomenis
+        smtp.login(sending_email, sending_pasword) # nurodome prisijungimo duomenis
         smtp.send_message(email) # išsiunčiame žinutę
 
   
@@ -45,6 +44,8 @@ class EmailCreateView(FormView):
     email_to = form.data['email_to']
     email_subject = form.data['email_subject']
     email_text = form.data['email_text']
+    email_user = form.data['sending_email']
+    email_pass = form.data['sending_pasword']
     
-    form.send_email(email_from, email_to, email_subject, email_text)
+    form.send_email(email_from, email_to, email_subject, email_text, email_user, email_pass)
     return super().form_valid(form)
