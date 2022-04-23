@@ -1,0 +1,13 @@
+{% load static %}
+<h1>Templates list</h1>
+<table border="1" style="width:30%">
+    <tr>
+        <td>Templeits</td>
+    </tr>
+{% for item in object_list %}
+    <tr>
+        <td><p><a href="{{item.id}}">{{item.template_name}}</a></p></td>
+
+    
+    </tr>
+    {% endfor %}

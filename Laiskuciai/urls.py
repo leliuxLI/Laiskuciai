@@ -16,9 +16,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from viewer.views import EmailCreateView
+from viewer.views import AllTemplatesLists, TemplateCreateView, ServerCreateView, AllServerLists
 
 urlpatterns = [
   path('admin/', admin.site.urls),
-  path('hello', EmailCreateView.as_view(), name='index'),
+  path('template_form', TemplateCreateView.as_view(), name='index'),
+  path('server_form', ServerCreateView.as_view(), name='index'),
+  path('servers/', AllServerLists.as_view(), name='index'),
+  path('templates/', AllTemplatesLists.as_view(), name='index'),
+  
+  
 ]

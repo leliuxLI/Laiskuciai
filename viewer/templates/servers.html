@@ -1,0 +1,16 @@
+{% load static %}
+<h1>Server list</h1>
+<table border="1" style="width:30%">
+    <tr>
+        <td>Server</td>
+        <td>Port</td>
+        <td>Login</td>
+    </tr>
+{% for item in object_list %}
+    <tr>
+        <td><p><a href="{{item.id}}">{{item.smtp_host}}</a></p></td>
+        <td>{{item.smtp_port}}</td>
+        <td>{{item.email_login}}</td>
+    
+    </tr>
+    {% endfor %} 
