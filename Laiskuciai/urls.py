@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from viewer.views import AllTemplatesLists, TemplateCreateView, ServerCreateView, AllServerLists
+from viewer.views import AllTemplatesLists, TemplateCreateView, ServerCreateView, AllServerLists, send_api
 
 urlpatterns = [
   path('admin/', admin.site.urls),
@@ -24,6 +24,7 @@ urlpatterns = [
   path('server_form', ServerCreateView.as_view(), name='index'),
   path('servers/', AllServerLists.as_view(), name='index'),
   path('templates/', AllTemplatesLists.as_view(), name='index'),
+  path('send/', send_api, name='index'),
   
   
 ]

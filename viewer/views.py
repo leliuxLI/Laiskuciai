@@ -37,29 +37,18 @@ class EmailTemplates(Form):
     
 
 
-# class EmailViews(Form):
-#   email_from = CharField(max_length=128)
-#   email_to = CharField(max_length=128, widget=EmailInput)
-#   email_subject = CharField(max_length=128)
-#   email_text = CharField(max_length=10000)
-#   sending_email = CharField(max_length=128, widget=EmailInput)
-#   sending_pasword = CharField(max_length=128, widget=PasswordInput)
-#   week_monday = BooleanField()
+def send_email(email_from, email_to, email_subject, email_text , sending_email, sending_pasword):
+  email = EmailMessage()
+  email['from'] = email_from
+  email['to'] = email_to
+  email['subject'] = email_subject
+  email.set_content(email_text)
 
-
-
-#   def send_email(self, email_from, email_to, email_subject, email_text , sending_email, sending_pasword):
-#     email = EmailMessage()
-#     email['from'] = email_from
-#     email['to'] = email_to
-#     email['subject'] = email_subject
-#     email.set_content(email_text)
-
-#     with smtplib.SMTP(host='smtp.gmail.com', port=587) as smtp:
-#         smtp.ehlo() # žiūrėkite, kaip į pasisveikinimą su serveriu
-#         smtp.starttls() # inicijuojame šifruotą kanalą
-#         smtp.login(sending_email, sending_pasword) # nurodome prisijungimo duomenis
-#         smtp.send_message(email) # išsiunčiame žinutę
+  with smtplib.SMTP(host='smtp.gmail.com', port=587) as smtp:
+    smtp.ehlo() # žiūrėkite, kaip į pasisveikinimą su serveriu
+    smtp.starttls() # inicijuojame šifruotą kanalą
+    smtp.login(sending_email, sending_pasword) # nurodome prisijungimo duomenis
+    smtp.send_message(email) # išsiunčiame žinutę
 
 class AllServerLists(ListView):
     model = EmailSetings
@@ -164,3 +153,35 @@ class TemplateCreateView(FormView):
  
     # print_some_times()
     return super().form_valid(form)
+
+
+
+def send_api(self):
+  templates = ''
+  current_week_day = datetime.datetime.today().weekday()
+  current_day = datetime.datetime.today().strftime('%Y-%m-%d 00:00:00')
+  current_week_day = 4
+
+  if current_week_day == 0:
+    current_filter = MainTemplate.objects.filter(week_monday=True).filter(email_end__gte=current_day).filter(email_start__lte=current_day)
+  elif current_week_day == 1:
+    current_filter = MainTemplate.objects.filter(week_tuesday=True).filter(email_end__gte=current_day).filter(email_start__lte=current_day)
+  elif current_week_day == 2:
+    current_filter = MainTemplate.objects.filter(week_wednesday=True).filter(email_end__gte=current_day).filter(email_start__lte=current_day)
+  elif current_week_day == 3:
+    current_filter = MainTemplate.objects.filter(week_thursday=True).filter(email_end__gte=current_day).filter(email_start__lte=current_day)
+  elif current_week_day == 4:
+    current_filter = MainTemplate.objects.filter(week_friday=True).filter(email_end__gte=current_day).filter(email_start__lte=current_day)
+  elif current_week_day == 5:
+    current_filter = MainTemplate.objects.filter(week_saturday=True).filter(email_end__gte=current_day).filter(email_start__lte=current_day)
+  elif current_week_day == 6:
+    current_filter = MainTemplate.objects.filter(week_sunday=True).filter(email_end__gte=current_day).filter(email_start__lte=current_day)
+  else:
+    return
+
+  for ob in current_filter:
+    smtp_login = ob.server_list.email_login
+    smtp_pass = ob.server_list.email_pass
+    send_email(ob.email_from, ob.email_to, ob.email_subject, ob.email_text, smtp_login, smtp_pass)
+    templates += ob.template_name + ','
+  return HttpResponse({templates})
