@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import MainTemplate, EmailSetings
 
-# Register your models here.
+admin.site.register(MainTemplate)
+admin.site.register(EmailSetings)

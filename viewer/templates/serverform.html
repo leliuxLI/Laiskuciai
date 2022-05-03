@@ -1,6 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
 {% load static %}
 
-        <form action="server_form" method="POST">
+        <form method="POST">
 
             {% csrf_token %}
             
@@ -8,3 +13,6 @@
            {{ form.as_p }}
            <input type="submit" name="send" value="Send"/>
     </form>
+
+
+{% endblock content %}

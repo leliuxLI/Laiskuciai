@@ -1,7 +1,10 @@
 from django.db import models
+from django.contrib.auth.models import User
 import datetime
+
 # Create your models here.
 class EmailSetings(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     smtp_host = models.CharField(max_length=200)
     smtp_port = models.IntegerField()
     email_login = models.CharField(max_length=200)
@@ -11,6 +14,7 @@ class EmailSetings(models.Model):
         return self.smtp_host + ':' + str(self.smtp_port) + ' [' + self.email_login + ']'
 
 class MainTemplate(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     template_name = models.CharField(max_length=200)
     email_from = models.CharField(max_length=128)
     email_to = models.EmailField(max_length=128)

@@ -10,6 +10,7 @@ from django.forms import (BooleanField, CharField, DateField, EmailInput, Form, 
 import smtplib # biblioteka susikalbėjimui su pašto serveriu
 from email.message import EmailMessage
 from .models import EmailSetings, MainTemplate
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class EmailServers(Form):
@@ -18,7 +19,7 @@ class EmailServers(Form):
   email_login = CharField(max_length=200)
   email_pass =  CharField(max_length=200, widget=PasswordInput) 
 
-class EmailTemplates(Form):
+class EmailTemplates(Form, LoginRequiredMixin):
   template_name = CharField(max_length=200)
   email_from = CharField(max_length=128)
   email_to = CharField(max_length=128, widget=EmailInput)
@@ -33,7 +34,8 @@ class EmailTemplates(Form):
   week_friday = BooleanField()
   week_saturday = BooleanField()
   week_sunday = BooleanField() 
-  server_list = ModelChoiceField(queryset=EmailSetings.objects.all()) 
+  server_list = ModelChoiceField(queryset=EmailSetings.objects.all())
+  # filter(user=self.request.user)) self susiziureti
     
 
 
@@ -50,40 +52,41 @@ def send_email(email_from, email_to, email_subject, email_text , sending_email, 
     smtp.login(sending_email, sending_pasword) # nurodome prisijungimo duomenis
     smtp.send_message(email) # išsiunčiame žinutę
 
-class AllServerLists(ListView):
+class AllServerLists(ListView, LoginRequiredMixin):
     model = EmailSetings
     template_name = 'servers.html'
 
     def get_queryset(self):
-        return EmailSetings.objects.filter()
+        return EmailSetings.objects.filter(user=self.request.user)
 
 
-class ServerCreateView(FormView):
+class ServerCreateView(FormView, LoginRequiredMixin):
   template_name = 'serverform.html'
   form_class = EmailServers
   success_url = '/servers/'
-  
+
   def form_valid(self, form):
     # This method is called when valid form data has been POSTed.
     # It should return an HttpResponse.
+    user=self.request.user
     smtp_h = form.data['smtp_host']
     smtp_p = form.data['smtp_port']
     email_u = form.data['email_login']
     email_p = form.data['email_pass']
 
-    server_item = EmailSetings(smtp_host=smtp_h, smtp_port=smtp_p, email_login=email_u, email_pass=email_p)
+    server_item = EmailSetings(smtp_host=smtp_h, smtp_port=smtp_p, email_login=email_u, email_pass=email_p, user=user)
     server_item.save()
 
     return super().form_valid(form)
 
-class AllTemplatesLists(ListView):
+class AllTemplatesLists(ListView, LoginRequiredMixin):
     model = MainTemplate
     template_name = 'templates.html'
 
     def get_queryset(self):
-        return MainTemplate.objects.filter()
+        return MainTemplate.objects.filter(user=self.request.user)
 
-class TemplateCreateView(FormView):
+class TemplateCreateView(FormView, LoginRequiredMixin):
   template_name = 'templateform.html'
   form_class = EmailTemplates
   success_url = '/templates/'
@@ -106,6 +109,7 @@ class TemplateCreateView(FormView):
     _week_saturday = form.data['week_saturday']
     _week_sunday = form.data['week_sunday']
     _server_list = EmailSetings.objects.get(id=int(form.data['server_list']))
+    _user=self.request.user
 
     _week = [_week_monday, _week_tuesday,_week_wednesday,_week_thursday,_week_friday, _week_saturday,_week_sunday]
     j = -1
@@ -116,7 +120,8 @@ class TemplateCreateView(FormView):
 
     
   
-    server_item = MainTemplate(template_name=_email_templ,
+    server_item = MainTemplate(user=_user,
+                              template_name=_email_templ,
                                email_from=_email_from,
                                email_to=_email_to,
                                email_subject=_email_subject,

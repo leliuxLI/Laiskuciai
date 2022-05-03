@@ -1,0 +1,28 @@
+{% extends 'base.html' %} 
+{% block content%} 
+
+{% if form.errors %}
+    <p>Tavo prisijungimo duomenys neteisingi</p>
+{% endif %} 
+{% if next %}
+    {% if user.is_authenticated %}
+        <p>Neturite prieigos prie šitos informacijos, prisijunkite</p>
+    {% endif %}
+{% endif %}
+<div class="col-4">
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %} {% load widget_tweaks %}
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            {% render_field form.username class+='form-control' type="text" %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            {% render_field form.password class+='form-control' type="password" %}
+        </div>
+        <button type="submit" class="btn btn-primary">Prisijungti</button>
+        <input type='hidden' name="next" value="{{next}}" />
+    </form>
+</div>
+
+{% endblock %}
